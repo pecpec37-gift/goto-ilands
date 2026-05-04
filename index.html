@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五島列島クイズ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ocean-deep: #07263d;
+  --ocean: #0b3d5e;
+  --ocean-mid: #1a6a9e;
+  --sea: #2196c8;
+  --foam: #a8d8ea;
+  --sand: #f0e0c0;
+  --coral: #e8734a;
+  --coral-dark: #c85530;
+  --gold: #d4a843;
+  --gold-light: #f0cc70;
+  --emerald: #2ec480;
+  --white: #fdfaf5;
+  --grey: rgba(255,255,255,0.55);
+  --card-bg: rgba(255,255,255,0.06);
+  --card-border: rgba(168,216,234,0.15);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  background:var(--ocean-deep);
+  color:var(--white);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── 背景 ── */
+.bg-layer{
+  position:fixed;inset:0;z-index:-2;
+  background:
+    radial-gradient(ellipse 90% 70% at 15% 85%, rgba(26,106,158,0.3) 0%,transparent 55%),
+    radial-gradient(ellipse 70% 90% at 85% 10%, rgba(7,38,61,0.6) 0%,transparent 55%),
+    linear-gradient(150deg,#07263d 0%,#0b3d5e 50%,#07263d 100%);
+}
+.bg-cross{
+  position:fixed;right:-40px;bottom:20px;
+  font-size:340px;color:rgba(212,168,67,0.035);
+  z-index:-1;pointer-events:none;line-height:1;
+  font-family:'Noto Serif JP',serif;
+}
+.bg-wave{
+  position:fixed;bottom:0;left:0;right:0;height:120px;z-index:-1;
+  background:linear-gradient(to top,rgba(7,38,61,0.5),transparent);
+  pointer-events:none;
+}
+
+/* ── 共通ユーティリティ ── */
+.screen{display:none;}
+.screen.active{display:flex;flex-direction:column;align-items:center;}
+
+.badge{
+  display:inline-block;
+  background:linear-gradient(135deg,var(--ocean),var(--ocean-mid));
+  border:1px solid rgba(168,216,234,0.3);
+  border-radius:40px;padding:5px 18px;
+  font-size:11px;letter-spacing:3px;color:var(--foam);
+  text-transform:uppercase;
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--coral),var(--coral-dark));
+  color:#fff;border:none;border-radius:50px;
+  padding:16px 48px;font-family:'Noto Sans JP',sans-serif;
+  font-size:17px;font-weight:700;letter-spacing:2px;cursor:pointer;
+  box-shadow:0 8px 28px rgba(232,115,74,0.4);
+  transition:transform .2s,box-shadow .2s;
+}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(232,115,74,0.5);}
+
+.btn-secondary{
+  background:rgba(255,255,255,0.08);
+  border:1.5px solid rgba(168,216,234,0.25);
+  color:var(--foam);border-radius:50px;
+  padding:13px 36px;font-family:'Noto Sans JP',sans-serif;
+  font-size:15px;font-weight:500;cursor:pointer;
+  transition:all .2s;
+}
+.btn-secondary:hover{background:rgba(168,216,234,0.15);border-color:var(--foam);}
+
+.divider{width:50px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:24px auto;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+@keyframes popIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
+@keyframes pulse{0%,100%{box-shadow:0 8px 28px rgba(232,115,74,.4),0 0 0 0 rgba(232,115,74,.3);}50%{box-shadow:0 8px 28px rgba(232,115,74,.4),0 0 0 14px rgba(232,115,74,0);}}
+@keyframes timerWarn{0%,100%{color:#ff6b6b;}50%{color:#ff0000;}}
+@keyframes correctFlash{0%{background:rgba(46,196,128,.35);}100%{background:transparent;}}
+@keyframes wrongFlash{0%{background:rgba(232,115,74,.35);}100%{background:transparent;}}
+
+/* ═══════════════════════════════════
+   TOP 画面
+═══════════════════════════════════ */
+#top-screen{
+  justify-content:center;min-height:100vh;
+  padding:40px 20px 60px;text-align:center;
+}
+.top-badge{animation:fadeUp .7s both;}
+.top-title{
+  font-family:'Noto Serif JP',serif;
+  font-size:clamp(38px,9vw,72px);font-weight:900;
+  line-height:1.05;letter-spacing:-1px;
+  margin-top:20px;
+  animation:fadeUp .7s .08s both;
+}
+.top-title span{display:block;color:var(--gold);}
+.top-sub{
+  font-size:14px;color:var(--foam);opacity:.8;
+  letter-spacing:1.5px;margin-top:12px;
+  animation:fadeUp .7s .15s both;
+}
+.genre-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:16px;max-width:560px;width:100%;
+  margin:36px 0 32px;
+  animation:fadeUp .7s .25s both;
+}
+@media(max-width:480px){.genre-grid{grid-template-columns:1fr;}}
+
+.genre-card{
+  background:var(--card-bg);
+  border:1.5px solid var(--card-border);
+  border-radius:18px;padding:28px 20px;
+  cursor:pointer;transition:all .25s;
+  text-align:center;position:relative;overflow:hidden;
+}
+.genre-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(168,216,234,.08),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.genre-card:hover{transform:translateY(-5px);border-color:rgba(168,216,234,.45);box-shadow:0 12px 36px rgba(0,0,0,.3);}
+.genre-card:hover::before{opacity:1;}
+.genre-icon{font-size:40px;margin-bottom:12px;}
+.genre-name{
+  font-family:'Noto Serif JP',serif;
+  font-size:20px;font-weight:700;color:var(--white);
+  margin-bottom:6px;
+}
+.genre-count{font-size:12px;color:var(--foam);opacity:.7;letter-spacing:1px;}
+.genre-card.history .genre-icon-wrap{color:#f0cc70;}
+.genre-card.geo .genre-icon-wrap{color:#7fe8a8;}
+.genre-card.food .genre-icon-wrap{color:#ffb347;}
+.genre-card.spot .genre-icon-wrap{color:#87ceeb;}
+
+.rules-box{
+  max-width:520px;width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(168,216,234,.12);
+  border-radius:14px;padding:22px 28px;
+  text-align:left;font-size:13px;
+  color:var(--foam);line-height:2;
+  animation:fadeUp .7s .35s both;
+}
+.rules-box h3{
+  font-family:'Noto Serif JP',serif;
+  font-size:15px;color:var(--gold);
+  margin-bottom:10px;letter-spacing:1px;
+}
+
+/* ═══════════════════════════════════
+   プレイヤー名入力画面
+═══════════════════════════════════ */
+#name-screen{
+  justify-content:center;min-height:100vh;
+  padding:40px 20px;text-align:center;
+}
+.name-genre-title{
+  font-family:'Noto Serif JP',serif;
+  font-size:clamp(26px,5vw,38px);font-weight:900;
+  margin:20px 0 6px;
+  animation:fadeUp .5s both;
+}
+.name-genre-sub{font-size:13px;color:var(--foam);opacity:.7;margin-bottom:32px;animation:fadeUp .5s .05s both;}
+
+.name-input-wrap{animation:fadeUp .5s .1s both;}
+.name-input{
+  background:rgba(255,255,255,.08);
+  border:2px solid rgba(168,216,234,.25);
+  border-radius:12px;padding:14px 20px;
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:18px;color:var(--white);
+  width:280px;text-align:center;
+  outline:none;transition:border-color .2s;
+}
+.name-input:focus{border-color:var(--sea);}
+.name-input::placeholder{color:rgba(255,255,255,.3);}
+.name-btn-wrap{margin-top:24px;display:flex;gap:14px;justify-content:center;animation:fadeUp .5s .15s both;}
+
+/* ═══════════════════════════════════
+   クイズ画面
+═══════════════════════════════════ */
+#quiz-screen{
+  min-height:100vh;padding:20px 20px 50px;
+  max-width:740px;margin:0 auto;width:100%;
+}
+.quiz-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:8px;width:100%;
+}
+.qh-left{display:flex;align-items:center;gap:14px;}
+.q-num{
+  font-family:'Noto Serif JP',serif;
+  font-size:13px;color:var(--foam);opacity:.7;letter-spacing:2px;
+}
+.q-score{
+  font-size:14px;color:var(--gold);font-weight:700;letter-spacing:1px;
+}
+.timer-wrap{display:flex;align-items:center;gap:8px;}
+.timer-label{font-size:11px;color:var(--foam);opacity:.6;letter-spacing:1px;}
+.timer-num{
+  font-family:'Noto Serif JP',serif;
+  font-size:28px;font-weight:900;color:var(--foam);
+  min-width:42px;text-align:right;transition:color .3s;
+}
+.timer-num.warn{animation:timerWarn .5s infinite;}
+
+.progress-bar{
+  width:100%;height:3px;
+  background:rgba(255,255,255,.1);
+  border-radius:2px;margin-bottom:28px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--sea),var(--foam));
+  border-radius:2px;transition:width .45s ease;
+}
+
+.cat-tag{
+  display:inline-block;font-size:11px;letter-spacing:2px;
+  color:var(--coral);border:1px solid rgba(232,115,74,.4);
+  border-radius:4px;padding:3px 10px;margin-bottom:16px;
+}
+
+.question-text{
+  font-family:'Noto Serif JP',serif;
+  font-size:clamp(17px,3.5vw,22px);font-weight:700;
+  line-height:1.7;color:var(--white);
+  margin-bottom:28px;min-height:70px;
+}
+
+.options-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  width:100%;
+}
+@media(max-width:500px){.options-grid{grid-template-columns:1fr;}}
+
+.option-btn{
+  background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(168,216,234,.15);
+  border-radius:14px;padding:18px 16px;
+  color:var(--white);font-family:'Noto Sans JP',sans-serif;
+  font-size:15px;text-align:left;cursor:pointer;
+  transition:all .2s;position:relative;
+  line-height:1.5;display:flex;align-items:flex-start;gap:10px;
+}
+.option-btn:hover:not(:disabled){
+  background:rgba(168,216,234,.12);
+  border-color:rgba(168,216,234,.4);
+  transform:translateY(-2px);
+}
+.opt-label{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:26px;height:26px;border-radius:50%;
+  background:rgba(168,216,234,.15);
+  color:var(--foam);font-size:12px;font-weight:700;
+  flex-shrink:0;margin-top:1px;
+}
+.option-btn.correct{background:rgba(46,196,128,.2);border-color:#2ec480;color:#7fe8a8;}
+.option-btn.correct .opt-label{background:rgba(46,196,128,.4);color:#fff;}
+.option-btn.wrong{background:rgba(232,115,74,.15);border-color:var(--coral);color:#f0a080;}
+.option-btn.wrong .opt-label{background:rgba(232,115,74,.4);color:#fff;}
+.option-btn.reveal{background:rgba(46,196,128,.08);border-color:rgba(46,196,128,.3);}
+
+/* フィードバック */
+.feedback{
+  margin-top:20px;padding:16px 20px;border-radius:12px;
+  font-size:14px;line-height:1.75;
+  opacity:0;transform:translateY(10px);
+  transition:all .3s ease;pointer-events:none;width:100%;
+}
+.feedback.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+.feedback.correct-fb{
+  background:rgba(46,196,128,.12);
+  border:1px solid rgba(46,196,128,.3);color:#a8efc8;
+}
+.feedback.wrong-fb{
+  background:rgba(232,115,74,.12);
+  border:1px solid rgba(232,115,74,.3);color:#f0c0a0;
+}
+.fb-head{font-weight:700;font-size:16px;display:block;margin-bottom:6px;}
+.time-badge{
+  display:inline-block;font-size:12px;font-weight:700;
+  border-radius:20px;padding:2px 10px;margin-left:8px;vertical-align:middle;
+}
+.time-plus{background:rgba(46,196,128,.3);color:#7fe8a8;}
+.time-minus{background:rgba(232,115,74,.3);color:#f0a080;}
+
+.next-btn{
+  margin-top:22px;width:100%;
+  background:linear-gradient(135deg,var(--ocean-mid),var(--sea));
+  color:#fff;border:none;border-radius:12px;
+  padding:16px;font-family:'Noto Sans JP',sans-serif;
+  font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;
+  opacity:0;transition:all .3s ease;pointer-events:none;
+}
+.next-btn.show{opacity:1;pointer-events:auto;}
+.next-btn:hover{filter:brightness(1.15);}
+
+/* ═══════════════════════════════════
+   結果画面
+═══════════════════════════════════ */
+#result-screen{
+  justify-content:flex-start;min-height:100vh;
+  padding:50px 20px 80px;text-align:center;
+  max-width:700px;margin:0 auto;width:100%;
+}
+.result-emoji{font-size:70px;margin-bottom:14px;animation:popIn .5s .1s both;}
+.result-title{
+  font-family:'Noto Serif JP',serif;
+  font-size:clamp(26px,5vw,40px);font-weight:900;
+  animation:fadeUp .5s .15s both;
+}
+.result-player{font-size:14px;color:var(--foam);opacity:.75;margin-top:6px;animation:fadeUp .5s .2s both;letter-spacing:1px;}
+
+.score-cards{
+  display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+  margin:28px 0;animation:fadeUp .5s .25s both;
+}
+.score-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:14px;padding:16px 22px;text-align:center;min-width:100px;
+}
+.sc-val{
+  font-family:'Noto Serif JP',serif;
+  font-size:clamp(28px,6vw,42px);font-weight:900;
+  display:block;
+}
+.sc-val.gold{color:var(--gold);}
+.sc-val.green{color:var(--emerald);}
+.sc-val.blue{color:var(--foam);}
+.sc-label{font-size:11px;color:var(--foam);opacity:.65;letter-spacing:1px;margin-top:4px;display:block;}
+
+.result-msg{
+  font-size:15px;color:var(--foam);opacity:.85;
+  line-height:1.9;max-width:500px;margin:0 auto 32px;
+  animation:fadeUp .5s .3s both;
+}
+
+/* 間違えた問題リスト */
+.wrong-section{
+  width:100%;max-width:680px;
+  margin:0 auto 36px;text-align:left;
+  animation:fadeUp .5s .4s both;
+}
+.wrong-section h3{
+  font-family:'Noto Serif JP',serif;
+  font-size:18px;color:var(--coral);
+  margin-bottom:16px;letter-spacing:1px;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(232,115,74,.3);
+}
+.wrong-item{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(232,115,74,.2);
+  border-radius:12px;padding:18px 20px;
+  margin-bottom:12px;
+}
+.wi-q{
+  font-family:'Noto Serif JP',serif;
+  font-size:15px;font-weight:700;
+  color:var(--white);margin-bottom:8px;line-height:1.6;
+}
+.wi-wrong{font-size:13px;color:#f0a080;margin-bottom:4px;}
+.wi-correct{
+  font-size:14px;font-weight:700;color:#7fe8a8;
+  margin-bottom:8px;
+}
+.wi-exp{font-size:13px;color:rgba(255,255,255,.6);line-height:1.7;}
+
+.result-btns{
+  display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp .5s .5s both;
+}
+
+/* ═══════════════════════════════════
+   ランキングボタン（TOP画面）
+═══════════════════════════════════ */
+.ranking-link{
+  margin-top:18px;
+  animation:fadeUp .7s .45s both;
+}
+.btn-ranking{
+  background:rgba(212,168,67,0.12);
+  border:1.5px solid rgba(212,168,67,0.35);
+  color:var(--gold);border-radius:50px;
+  padding:12px 32px;font-family:'Noto Sans JP',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  letter-spacing:1.5px;transition:all .2s;
+}
+.btn-ranking:hover{background:rgba(212,168,67,0.22);border-color:var(--gold);}
+
+/* ═══════════════════════════════════
+   ランキング画面
+═══════════════════════════════════ */
+#ranking-screen{
+  min-height:100vh;padding:40px 20px 80px;
+  max-width:700px;margin:0 auto;width:100%;
+  text-align:center;
+}
+.ranking-title{
+  font-family:'Noto Serif JP',serif;
+  font-size:clamp(28px,6vw,44px);font-weight:900;
+  margin:16px 0 6px;
+  animation:fadeUp .5s both;
+}
+.ranking-title span{display:block;color:var(--gold);}
+
+.genre-tabs{
+  display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+  margin:24px 0 28px;
+  animation:fadeUp .5s .1s both;
+}
+.genre-tab{
+  background:rgba(255,255,255,.06);
+  border:1.5px solid rgba(168,216,234,.18);
+  border-radius:40px;padding:9px 20px;
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:13px;font-weight:700;color:var(--foam);
+  cursor:pointer;transition:all .2s;letter-spacing:1px;
+}
+.genre-tab:hover{background:rgba(168,216,234,.15);border-color:rgba(168,216,234,.4);}
+.genre-tab.active{
+  background:linear-gradient(135deg,var(--ocean-mid),var(--sea));
+  border-color:var(--sea);color:#fff;
+  box-shadow:0 4px 16px rgba(33,150,200,.35);
+}
+
+.ranking-list-wrap{
+  width:100%;max-width:600px;margin:0 auto;
+  animation:fadeUp .5s .15s both;
+}
+
+.ranking-loading{
+  padding:48px 0;color:var(--foam);opacity:.6;
+  font-size:14px;letter-spacing:2px;
+}
+.ranking-empty{
+  padding:48px 0;color:var(--foam);opacity:.5;
+  font-size:14px;
+}
+
+.ranking-row{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(168,216,234,.12);
+  border-radius:14px;padding:14px 18px;
+  margin-bottom:10px;
+  transition:transform .15s;
+}
+.ranking-row:hover{transform:translateX(4px);}
+.ranking-row.top1{
+  background:linear-gradient(135deg,rgba(212,168,67,.18),rgba(212,168,67,.06));
+  border-color:rgba(212,168,67,.4);
+}
+.ranking-row.top2{
+  background:linear-gradient(135deg,rgba(168,216,234,.14),rgba(168,216,234,.04));
+  border-color:rgba(168,216,234,.3);
+}
+.ranking-row.top3{
+  background:linear-gradient(135deg,rgba(232,115,74,.12),rgba(232,115,74,.04));
+  border-color:rgba(232,115,74,.25);
+}
+.rank-num{
+  font-family:'Noto Serif JP',serif;
+  font-size:22px;font-weight:900;
+  min-width:36px;text-align:center;
+}
+.rank-num.g1{color:var(--gold);}
+.rank-num.g2{color:var(--foam);}
+.rank-num.g3{color:#f09060;}
+.rank-num.gn{color:rgba(255,255,255,.35);font-size:16px;}
+.rank-medal{font-size:22px;min-width:28px;}
+.rank-info{flex:1;text-align:left;}
+.rank-name{
+  font-family:'Noto Serif JP',serif;
+  font-size:16px;font-weight:700;
+  color:var(--white);
+}
+.rank-detail{font-size:12px;color:var(--foam);opacity:.65;margin-top:2px;}
+.rank-score{
+  font-family:'Noto Serif JP',serif;
+  font-size:22px;font-weight:900;
+  color:var(--gold);text-align:right;
+  min-width:60px;
+}
+.rank-score span{font-size:11px;font-weight:400;color:var(--foam);opacity:.7;display:block;}
+
+/* 結果画面のランキングボタン */
+.result-ranking-btn{
+  width:100%;max-width:400px;
+  background:rgba(212,168,67,0.12);
+  border:1.5px solid rgba(212,168,67,0.35);
+  color:var(--gold);border-radius:12px;
+  padding:14px;font-family:'Noto Sans JP',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  letter-spacing:1.5px;transition:all .2s;
+  margin:0 auto 20px;display:block;
+}
+.result-ranking-btn:hover{background:rgba(212,168,67,0.22);border-color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="bg-cross">✝</div>
+<div class="bg-wave"></div>
+
+<!-- ═══ TOP ═══ -->
+<div id="top-screen" class="screen active">
+  <div class="badge top-badge">🏝 Goto Islands Quiz</div>
+  <h1 class="top-title">五島列島<span>クイズ道場</span></h1>
+  <p class="top-sub">ジャンルを選んでスタート！</p>
+  <div class="divider"></div>
+
+  <div class="genre-grid">
+    <div class="genre-card history" onclick="selectGenre('history')">
+      <div class="genre-icon">⛪</div>
+      <div class="genre-name">歴史</div>
+      <div class="genre-count">キリシタン文化・幕末</div>
+    </div>
+    <div class="genre-card geo" onclick="selectGenre('geo')">
+      <div class="genre-icon">🗺️</div>
+      <div class="genre-name">地理</div>
+      <div class="genre-count">島の名前・地形・交通</div>
+    </div>
+    <div class="genre-card food" onclick="selectGenre('food')">
+      <div class="genre-icon">🍜</div>
+      <div class="genre-name">特産品</div>
+      <div class="genre-count">食べ物・工芸・産業</div>
+    </div>
+    <div class="genre-card spot" onclick="selectGenre('spot')">
+      <div class="genre-icon">🌊</div>
+      <div class="genre-name">観光スポット</div>
+      <div class="genre-count">景勝地・教会・アクティビティ</div>
+    </div>
+  </div>
+
+  <div class="rules-box">
+    <h3>📋 ルール</h3>
+    制限時間：120秒 ／ 各ジャンル10問ランダム出題<br>
+    ✅ 正解 → <strong>+10点</strong> ＋ 時間+5秒<br>
+    ❌ 不正解 → 減点なし ＋ 時間−5秒のペナルティ<br>
+    🏆 残り時間がそのままボーナス点に加算！
+  </div>
+  <div class="ranking-link">
+    <button class="btn-ranking" onclick="showRanking()">🏆 スコアランキングを見る</button>
+  </div>
+</div>
+
+<!-- ═══ ランキング ═══ -->
+<div id="ranking-screen" class="screen">
+  <div class="badge" style="animation:fadeUp .5s both">🏆 RANKING</div>
+  <h2 class="ranking-title">スコア<span>ランキング</span></h2>
+  <div class="genre-tabs" id="genre-tabs">
+    <button class="genre-tab active" data-genre="history" onclick="switchRankingTab('history')">⛪ 歴史</button>
+    <button class="genre-tab" data-genre="geo" onclick="switchRankingTab('geo')">🗺️ 地理</button>
+    <button class="genre-tab" data-genre="food" onclick="switchRankingTab('food')">🍜 特産品</button>
+    <button class="genre-tab" data-genre="spot" onclick="switchRankingTab('spot')">🌊 観光スポット</button>
+  </div>
+  <div class="ranking-list-wrap">
+    <div id="ranking-list"><div class="ranking-loading">読み込み中…</div></div>
+  </div>
+  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn-secondary" onclick="goTop()">← トップへ</button>
+    <button onclick="clearRanking()" style="background:rgba(232,115,74,.1);border:1.5px solid rgba(232,115,74,.3);
+      color:#f0a080;border-radius:50px;padding:12px 24px;font-family:'Noto Sans JP',sans-serif;
+      font-size:13px;cursor:pointer;transition:all .2s;"
+      onmouseover="this.style.background='rgba(232,115,74,.2)'"
+      onmouseout="this.style.background='rgba(232,115,74,.1)'">
+      🗑️ このジャンルの記録を削除
+    </button>
+  </div>
+</div>
+
+<!-- ═══ 名前入力 ═══ -->
+<div id="name-screen" class="screen">
+  <div class="badge" id="name-badge">歴史クイズ</div>
+  <h2 class="name-genre-title" id="name-genre-title">歴史クイズ</h2>
+  <p class="name-genre-sub">10問ランダム出題 ／ 120秒</p>
+  <div class="name-input-wrap">
+    <input type="text" class="name-input" id="player-name" placeholder="プレイヤー名（任意）" maxlength="16">
+  </div>
+  <div class="name-btn-wrap">
+    <button class="btn-secondary" onclick="goTop()">← 戻る</button>
+    <button class="btn-primary" onclick="startQuiz()">スタート ▶</button>
+  </div>
+</div>
+
+<!-- ═══ クイズ ═══ -->
+<div id="quiz-screen" class="screen">
+  <div class="quiz-header">
+    <div class="qh-left">
+      <span class="q-num" id="q-num">Q1 / 10</span>
+      <span class="q-score" id="q-score">0 pt</span>
+    </div>
+    <div class="timer-wrap">
+      <span class="timer-label">残り</span>
+      <span class="timer-num" id="timer-num">120</span>
+      <span class="timer-label">秒</span>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <div id="cat-tag" class="cat-tag"></div>
+  <div id="question-text" class="question-text"></div>
+  <div class="options-grid" id="options-grid"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()">次の問題へ →</button>
+</div>
+
+<!-- ═══ 結果 ═══ -->
+<div id="result-screen" class="screen">
+  <div class="result-emoji" id="result-emoji">🏝</div>
+  <h2 class="result-title" id="result-title"></h2>
+  <p class="result-player" id="result-player"></p>
+  <div class="score-cards">
+    <div class="score-card">
+      <span class="sc-val gold" id="r-total">0</span>
+      <span class="sc-label">TOTAL SCORE</span>
+    </div>
+    <div class="score-card">
+      <span class="sc-val green" id="r-correct">0</span>
+      <span class="sc-label">正解数</span>
+    </div>
+    <div class="score-card">
+      <span class="sc-val blue" id="r-bonus">0</span>
+      <span class="sc-label">時間ボーナス</span>
+    </div>
+  </div>
+  <p class="result-msg" id="result-msg"></p>
+  <div id="ranking-save-area" style="animation:fadeUp .5s .35s both;width:100%;max-width:500px;margin:0 auto 20px;"></div>
+  <div class="wrong-section" id="wrong-section"></div>
+  <div class="result-btns">
+    <button class="btn-secondary" onclick="goTop()">← トップへ</button>
+    <button class="btn-secondary" onclick="showRanking(currentGenre)">🏆 ランキング</button>
+    <button class="btn-primary" onclick="retryQuiz()">もう一度挑戦</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   問題データベース（全4ジャンル・合計約130問）
+═══════════════════════════════════════════════════ */
+const DB = {
+
+/* ── 歴史（35問） ── */
+history: [
+  {q:"五島列島がキリスト教の布教地として重視されたのは何世紀頃からですか？",o:["16世紀","12世紀","18世紀","20世紀"],a:0,e:"1566年、イエズス会のルイス・デ・アルメイダが五島を訪れたのが最初の記録とされ、16世紀後半からキリスト教が広まりました。"},
+  {q:"江戸幕府が出した「禁教令」によりキリスト教が禁じられた年はいつですか？",o:["1612年","1550年","1700年","1868年"],a:0,e:"1612年に直轄地へ禁教令が出され、翌1613年には全国に拡大されました。五島の信者たちはここから約250年にわたり信仰を隠し続けました。"},
+  {q:"五島のカクレキリシタンが発見された「信徒発見」の出来事は何年ですか？",o:["1865年","1868年","1873年","1900年"],a:0,e:"1865年3月17日、長崎の大浦天主堂で浦上の信者たちが神父に信仰を打ち明けた「信徒発見」は、世界宣教史上の奇跡と呼ばれています。"},
+  {q:"五島列島のキリシタン関連遺産が世界文化遺産に登録されたのはいつですか？",o:["2018年","2015年","2020年","2010年"],a:0,e:"2018年、「長崎と天草地方の潜伏キリシタン関連遺産」としてユネスコ世界文化遺産に登録されました。五島からは久賀島・奈留島の集落が含まれます。"},
+  {q:"久賀島の世界遺産構成資産として正しいものはどれですか？",o:["旧五輪教会堂","堂崎天主堂","頭ヶ島天主堂","水ノ浦教会"],a:0,e:"久賀島の「五島市久賀島の集落」が構成資産で、旧五輪教会堂（現五輪教会）などが含まれます。明治初期の弾圧「五島崩れ」の舞台でもあります。"},
+  {q:"奈留島の世界遺産構成資産はどれですか？",o:["江上天主堂","水ノ浦教会","冷水教会","半泊教会"],a:0,e:"奈留島の「奈留島の江上集落（江上天主堂とその周辺）」が構成資産。江上天主堂は1918年建立で、潜伏キリシタンの末裔が建てた白い教会です。"},
+  {q:"明治時代に五島で起きたキリシタン弾圧を何と呼びますか？",o:["五島崩れ","浦上崩れ","天草崩れ","島原崩れ"],a:0,e:"1868年（明治元年）、五島各地でカトリック信者が迫害された事件を「五島崩れ」と呼びます。久賀島では牢屋に多数が押し込められ多くの犠牲者が出ました。"},
+  {q:"五島藩の藩主を務めた家名はどれですか？",o:["五島氏（宇久氏）","島津氏","大友氏","松浦氏"],a:0,e:"五島氏（宇久氏）が室町時代から江戸時代まで五島を治めた藩主家です。宇久島を本拠としていた宇久氏が五島全域を支配下に置き、のちに五島氏を名乗りました。"},
+  {q:"五島列島にキリスト教を伝えたとされるイエズス会の宣教師はだれですか？",o:["ルイス・デ・アルメイダ","フランシスコ・ザビエル","マテオ・リッチ","ルイス・フロイス"],a:0,e:"1566年、ポルトガル人の医師・宣教師ルイス・デ・アルメイダが五島を訪れキリスト教を伝えました。彼は九州各地で医療活動と布教を行いました。"},
+  {q:"五島のカクレキリシタンが独自に使い続けた祈祷書を何と呼びますか？",o:["御組（おくみ）の祈り","バスティアンの暦","天地始之事","オラショ"],a:3,e:"「オラショ」はラテン語のOratio（祈り）が語源で、250年以上口伝で受け継がれた独自の祈祷文です。発音が変容しながらも継承された文化遺産です。"},
+  {q:"1945年の太平洋戦争終結後、五島列島で起きた主な変化はどれですか？",o:["人口が急増した","石炭産業が発達した","漁業と農業が主産業となった","軍港として利用された"],a:2,e:"戦後は軍事利用が解除され、五島の基幹産業は漁業・農業（五島うどん・椿など）へ移行しました。炭鉱は長崎本土や軍艦島周辺が中心で、五島は主に漁業の島です。"},
+  {q:"江戸時代、五島藩が参勤交代で通った主要な海路はどれですか？",o:["玄界灘から長崎へ","東シナ海から薩摩へ","有明海から熊本へ","瀬戸内海経由で江戸へ"],a:0,e:"五島藩は玄界灘を渡り長崎を経由して江戸へ参勤交代を行いました。海路の旅は天候次第で危険を伴い、藩の財政にも大きな負担でした。"},
+  {q:"五島列島と中国・朝鮮との貿易の歴史として正しいのはどれですか？",o:["中世から東アジア貿易の中継地だった","江戸時代から貿易が始まった","明治時代に初めて中国船が寄港した","古代から米の輸出が盛んだった"],a:0,e:"五島は東シナ海に面し、古代から遣唐使の寄港地として、中世には日中間の海上交易の中継拠点として栄えました。倭寇の根拠地の一つでもありました。"},
+  {q:"「頭ヶ島天主堂」が特異な点はどれですか？",o:["石造りの珍しい教会","木造日本最大の教会","海の上に建っている","地下に礼拝堂がある"],a:0,e:"頭ヶ島天主堂（1919年完成）は地元産の砂岩を積み上げた石造りの教会で、国の重要文化財。日本では珍しい石造教会として世界遺産の構成資産にもなっています。"},
+  {q:"五島崩れの際、久賀島で信者が押し込められた場所を通称何と呼びますか？",o:["牢屋の窄（ひそ）","信者の洞","隠れ教会","十字架の丘"],a:0,e:"「牢屋の窄」は明治初年、12坪ほどの牢に200人以上の信者が押し込められた場所です。劣悪な環境で多数が命を落とし、現在は殉教記念碑が建っています。"},
+  {q:"五島列島がかつて「遣唐使」の重要な寄港地だったのはいつ頃ですか？",o:["奈良〜平安時代","縄文時代","鎌倉時代","江戸時代"],a:0,e:"7〜9世紀の遣唐使船は五島列島（特に福江島）を最後の寄港地として東シナ海を渡りました。遣唐使廃止後も五島は海上交通の要所でした。"},
+  {q:"五島の教会群のうち最古とされる「堂崎天主堂」が完成したのはいつですか？",o:["1908年","1868年","1945年","1980年"],a:0,e:"堂崎天主堂は1908年（明治41年）完成。フランス人宣教師ペルー神父によって建てられたレンガ造りの教会で、現在はキリシタン資料館として公開されています。"},
+  {q:"五島列島の教会建築に大きく貢献したフランス人神父は誰ですか？",o:["マルマン神父","ペルー神父","ド・ロ神父","フューレ神父"],a:2,e:"ド・ロ神父（Marc Marie de Rotz）は長崎・外海地区を中心に活動しましたが、五島の教会建築にも影響を与えました。なお堂崎はペルー神父が建立しました。"},
+  {q:"幕末〜明治初期、五島へ大量移住してきた信者はどこの出身が多かったですか？",o:["外海（そとめ）地区","平戸","天草","薩摩"],a:0,e:"長崎の外海（そとめ）地区の潜伏キリシタンが、生活苦や迫害を逃れて五島各地へ移住しました。彼らは「五島開拓」の担い手となり教会建設も進めました。"},
+  {q:"カクレキリシタンの信仰において「バスティアンの暦」とは何ですか？",o:["日本独自の宗教暦","ポルトガル語の聖書","ラテン語の賛美歌","司祭が使う典礼書"],a:0,e:"「バスティアンの暦」は潜伏キリシタンが250年以上伝えた独自の太陰暦で、祝祭日を計算するために使われました。バスティアンという信者が守り伝えたとされます。"},
+  {q:"五島の歴史において「五島灰」とは何ですか？",o:["椿の灰を使った陶芸釉薬","火山の噴出物","キリシタンの焚書","江戸時代の刑罰"],a:0,e:"五島灰は椿などを燃やした灰を原料とする釉薬で、焼き物の表面に独特のガラス質を生み出します。五島焼（鬼岳焼）などで伝統的に使われています。"},
+  {q:"五島市の市制施行はいつですか？",o:["2004年","1960年","1990年","2010年"],a:0,e:"2004年（平成16年）8月1日、福江市と南松浦郡5町が合併して五島市が誕生しました。現在の人口は約3万5千人（旧福江市域を中心とする）です。"},
+  {q:"戦国時代、五島の宇久氏と関係が深かった大名はどれですか？",o:["大村純忠","島津義久","毛利元就","織田信長"],a:0,e:"九州北部のキリシタン大名・大村純忠と宇久氏（五島氏）は姻戚関係を持ち、共にキリスト教を受け入れた時代もありました。"},
+  {q:"五島列島は何時代から人が住んでいた痕跡が見られますか？",o:["縄文時代","弥生時代","古墳時代","平安時代"],a:0,e:"五島列島では縄文時代の遺跡が多数見つかっており、少なくとも数千年前から人が生活していたことがわかっています。"},
+  {q:"五島の教会の建築様式として最も多く見られるのはどれですか？",o:["ロマネスク様式・ゴシック様式","純和風建築","近代建築","バロック様式"],a:0,e:"五島の教会群には、ロマネスク様式やゴシック様式を取り入れながら和洋折衷の要素も持つ独特の建築が多く、それぞれに個性があります。"},
+  {q:"五島福江城（石田城）が築城された主な目的は何ですか？",o:["外国船への備え","農民一揆への備え","隣国大名への備え","幕府への備え"],a:0,e:"福江城（石田城）は1863年完成の日本最後の城で、幕末に外国船（特にロシア船）の来航に備えて海城として築かれました。"},
+  {q:"五島のキリシタン信者が口伝で祈り継いだ「オラショ」の原語は何ですか？",o:["ラテン語","スペイン語","ポルトガル語","フランス語"],a:0,e:"「オラショ」はラテン語の「Oratio（祈り）」が語源です。宣教師たちが教えたラテン語の祈祷文が日本語発音で変容しながら伝承されました。"},
+  {q:"五島福江島に残る「武家屋敷通り」があるのはどこですか？",o:["福江城下（石田地区）","奈留島","若松島","頭ヶ島"],a:0,e:"福江城下の「武家屋敷通り（熊本城下）」では石垣と白壁が連なる武家屋敷跡が保存されており、江戸時代の城下町の面影を今に残しています。"},
+  {q:"五島列島と長崎の歴史的な海上交通において重要だった船はどれですか？",o:["千石船（弁財船）","黒船","ジャンク船","ガレオン船"],a:0,e:"江戸時代、五島と長崎を結ぶ物資輸送に和船（弁財船・千石船）が使われていました。五島の物産（干物・塩・椿油）を長崎へ運ぶ重要な交易ルートでした。"},
+  {q:"長崎の大浦天主堂で「信徒発見」があったとき、五島出身の信者も参加していましたか？",o:["はい、浦上・五島の信者が参加","いいえ、五島とは無関係","五島の神父が主導した","記録は残っていない"],a:0,e:"1865年の信徒発見には主に浦上の信者が関わりましたが、五島を含む長崎各地の潜伏キリシタンが信仰を明かす契機となった出来事でした。"},
+  {q:"江戸時代の五島で行われた「踏み絵」は何を確認するためですか？",o:["キリシタンでないことの確認","土地の所有権確認","年貢の支払い確認","武士の身分確認"],a:0,e:"踏み絵（絵踏み）はキリストやマリアの像を踏ませることでキリシタンを発見するための制度です。五島でも毎年正月に行われていました。"},
+  {q:"五島の「かくれキリシタン」と「カトリック」の違いとして最も正確なものはどれですか？",o:["禁教期に独自化した信仰 vs 解禁後に正式復帰した信仰","同じ信仰を指す別の名前","カトリックが先にあった","プロテスタントとカトリックの区別"],a:0,e:"「かくれキリシタン」は禁教期に独自変容した民俗宗教的信仰を今も守る人々、「カトリック」は解禁後にローマ教会へ復帰した人々を指します。"},
+  {q:"五島藩の石高（お米の生産高の単位）はおよそいくらでしたか？",o:["約1万4千石","約10万石","約100万石","約5千石"],a:0,e:"五島藩（福江藩）の石高は約1万4千石で、比較的小規模な藩でした。海産物や椿油など農業以外の産物が藩の経済を支えていました。"},
+  {q:"五島列島が「西の果て」として歴史的に担った役割はどれですか？",o:["東アジアへの海上玄関口","倭寇の唯一の根拠地","江戸との文化交流の窓口","鎖国時代の密貿易の中心"],a:0,e:"五島は東シナ海に面した日本最西端の有人島群として、遣唐使・中世貿易・キリスト教伝来・開国期の外交など、東アジアとの交流の玄関口的役割を担いました。"},
+  {q:"現在の五島市内に残る教会の数はおよそいくつですか？",o:["約50か所","約5か所","約200か所","約10か所"],a:0,e:"五島列島全域（五島市・新上五島町）には約50〜60の教会があり、人口当たりの教会数は全国トップクラスです。「教会巡り」は五島観光の大きな柱です。"},
+],
+
+/* ── 地理（30問） ── */
+geo: [
+  {q:"五島列島は何県に属しますか？",o:["長崎県","佐賀県","熊本県","福岡県"],a:0,e:"五島列島は全島が長崎県に属します。主に五島市（下五島）と新上五島町（上五島）の二つの自治体で構成されています。"},
+  {q:"五島列島の島の総数はおよそいくつですか？",o:["約140島","約20島","約500島","約50島"],a:0,e:"五島列島は大小約140の島々から成ります。うち有人島は現在10数島で、最大の福江島を中心に人々が生活しています。"},
+  {q:"五島列島で最も大きな島はどれですか？",o:["福江島","中通島","奈留島","若松島"],a:0,e:"福江島は五島列島最大の島で面積約326㎢。下五島の中心地で五島市の行政・観光の拠点です。"},
+  {q:"五島列島の「上五島」の中心島はどれですか？",o:["中通島","福江島","頭ヶ島","宇久島"],a:0,e:"中通島は上五島最大の島で、上五島全域を管轄する新上五島町の中心地です。有川や奈良尾などの港町があります。"},
+  {q:"五島列島の最北端にある有人島はどれですか？",o:["宇久島","福江島","中通島","小値賀島"],a:0,e:"宇久島は五島列島最北端に位置し、佐世保市に編入されています。五島氏（宇久氏）発祥の地でもあり、太陽光発電の先進地として注目されています。"},
+  {q:"福江島から長崎市までの直線距離はおよそどれくらいですか？",o:["約100km","約30km","約200km","約500km"],a:0,e:"福江島から長崎市まで約100kmです。フェリーで約3時間半、高速船で約1時間25分かかります。"},
+  {q:"五島列島から最も近い外国はどこですか？",o:["中国（上海付近）","韓国（釜山）","台湾","ロシア（対馬海峡）"],a:0,e:"五島列島から中国の上海まで約700km。東シナ海を隔てて中国が最も近い外国です。古来より海上交易路としての重要性がありました。"},
+  {q:"五島列島の気候の特徴はどれですか？",o:["温暖多雨の海洋性気候","冷涼で雪が多い","内陸性で寒暖差が大きい","乾燥した地中海性気候"],a:0,e:"五島列島は対馬暖流の影響を受けた温暖多雨の海洋性気候です。冬でも比較的温暖で椿が自生し、「椿の島」とも呼ばれます。"},
+  {q:"福江港から長崎港へ行く「ジェットフォイル」の所要時間はおよそどれくらいですか？",o:["約85分","約30分","約4時間","約10分"],a:0,e:"ジェットフォイル（高速船）で福江港〜長崎港は約1時間25分（約85分）です。フェリーの約3時間半と比べ大幅に短縮できます。"},
+  {q:"福岡市からのアクセスとして、現在定期フェリー航路があるのはどこですか？",o:["博多港→福江港","門司港→奈留島","北九州港→中通島","唐津港→宇久島"],a:0,e:"野母商船などが博多港〜福江港（五島市）の定期フェリーを運航しており、所要時間は約8時間（夜行便あり）です。"},
+  {q:"五島列島で2番目に大きい島はどれですか？",o:["中通島","奈留島","若松島","久賀島"],a:0,e:"中通島は面積約167㎢で五島列島第2位の大きさです。上五島の中心として観光・産業・行政の拠点となっています。"},
+  {q:"五島列島の最高峰はどこにありますか？",o:["福江島","中通島","奈留島","頭ヶ島"],a:0,e:"五島列島の最高峰は福江島の父ヶ岳（373m）です。その他にも鬼岳（315m）など火山性の丘が島内に点在しています。"},
+  {q:"五島市の読み方として正しいのはどれですか？",o:["ごとうし","いつしまし","ごしまし","ごとうちょう"],a:0,e:"「五島市」は「ごとうし」と読みます。2004年の合併で誕生しました。「新上五島町」は「しんかみごとうちょう」です。"},
+  {q:"奈留島はどの自治体に属しますか？",o:["五島市","新上五島町","佐世保市","南松浦郡"],a:0,e:"奈留島は五島市に属します。江上天主堂のある江上地区やナルトビエイで有名な海が観光の見どころです。"},
+  {q:"頭ヶ島は現在どの自治体に属しますか？",o:["新上五島町","五島市","佐世保市","松浦市"],a:0,e:"頭ヶ島（かしらがしま）は新上五島町に属し、中通島から橋で結ばれています。頭ヶ島天主堂（世界遺産）が有名です。"},
+  {q:"五島列島のある海域の名称はどれですか？",o:["東シナ海","日本海","太平洋","瀬戸内海"],a:0,e:"五島列島は東シナ海に面しています。大陸へと続く広大な海の玄関口であり、古来より海上交通・貿易の要衝でした。"},
+  {q:"五島市のシンボルとして制定されている「市の花」はどれですか？",o:["椿（ツバキ）","桜","菜の花","ハマボウ"],a:0,e:"椿（ヤブツバキ）は五島市の市花です。島内各所に自生し「椿の島」として知られ、椿油は五島の重要な特産品です。"},
+  {q:"若松島と中通島の間にある「若松瀬戸」はどのような地形ですか？",o:["リアス式の入り江","砂浜の多い海峡","急流の海峡","サンゴ礁の浅瀬"],a:0,e:"若松瀬戸はリアス式の複雑な入り江と小島が連なる美しい海峡地形です。クルージングや釣りスポットとして人気があります。"},
+  {q:"五島列島と平戸島・壱岐・対馬の関係で正しいのはどれですか？",o:["いずれも長崎県の離島","五島だけが長崎県","全て同じ行政区域","九州本島の一部"],a:0,e:"平戸島・壱岐・対馬・五島列島はすべて長崎県の離島です。長崎県は全国最多の有人離島数を持つ県で、各島が独自の歴史・文化を持ちます。"},
+  {q:"五島列島全体の面積はおよそどれくらいですか？",o:["約690㎢","約100㎢","約2000㎢","約50㎢"],a:0,e:"五島列島の総面積は約690㎢です。これは東京23区（約628㎢）とほぼ同じ広さです。"},
+  {q:"五島列島のリアス式海岸はどのような海岸地形ですか？",o:["山地が沈降し入り江と岬が交互に連なる海岸","砂丘が連続する平坦な海岸","珊瑚礁が発達した浅い海","岩壁が垂直に切り立った断崖海岸"],a:0,e:"リアス式海岸は山地が沈水し、複雑に入り組んだ湾入と岬が連続する地形です。五島列島は全域にわたりリアス式の美しい海岸線が続き、漁港や入り江が点在します。"},
+  {q:"五島市と新上五島町の間の移動に主に使われる交通手段は何ですか？",o:["フェリー・高速船","橋（五島架橋）","ヘリコプター","潜水艦"],a:0,e:"五島市（下五島）と新上五島町（上五島）の間は海で隔てられており、フェリーや高速船で移動します。車ごと乗船できるフェリーが生活に欠かせない交通手段です。"},
+  {q:"五島列島の中で橋で連結されている島はどれですか？",o:["若松島と中通島と頭ヶ島","福江島と奈留島","宇久島と小値賀島","久賀島と奈留島"],a:0,e:"上五島では若松島・中通島・頭ヶ島などが橋で繋がれています（若松大橋など）。下五島の福江島は橋では本土・他島と繋がっていません。"},
+  {q:"五島列島で養殖が盛んな海産物はどれですか？",o:["真珠・真鯛・ぶり","マグロ・昆布","サーモン・帆立","牡蠣・アワビのみ"],a:0,e:"五島列島では真珠・真鯛・ぶり・マグロなどの養殖が盛んです。きれいな海水と豊富な餌となるプランクトンが好環境をつくっています。"},
+  {q:"福江島の北西に位置する「嵯峨島（さがのしま）」の特徴はどれですか？",o:["火山性の玄武岩台地","砂浜が多い平坦な島","石灰岩の洞窟が有名","椿だけが自生する島"],a:0,e:"嵯峨島は玄武岩の台地からなる島で、独特の地形と豊かな自然が残ります。人口は非常に少なく、フェリーで福江島から約20分の小さな火山島です。"},
+  {q:"五島の漁港として最も水揚げが多い場所はどこですか？",o:["富江港","福江港","有川港","奈良尾港"],a:0,e:"富江港は五島列島有数の漁港で、マグロ・カツオ・サバなどの水揚げが多く、五島の水産業を支える重要な拠点です。"},
+  {q:"「小値賀島（おぢかじま）」はどの行政区域に属しますか？",o:["北松浦郡小値賀町","五島市","新上五島町","佐世保市"],a:0,e:"小値賀島は北松浦郡小値賀町に属します。五島列島の北端近くに位置し、古民家ステイなどの観光で近年注目されています。"},
+  {q:"五島列島の年間日照時間は九州の平均と比べてどうですか？",o:["やや少なく曇りや雨が多い","九州平均より多い","砂漠並みに多い","ほぼ同じ"],a:0,e:"五島列島は対馬暖流からの湿気で曇りや雨の日が比較的多く、年間日照時間は九州平均よりやや少ない傾向があります。一方で気温は温暖で暮らしやすいとされます。"},
+  {q:"「久賀島（ひさかじま）」の面積はおよそどれくらいですか？",o:["約57㎢","約10㎢","約200㎢","約5㎢"],a:0,e:"久賀島は約57㎢で五島市に属します。潜伏キリシタン関連の世界遺産を有する島で、現在も少数の住民が暮らしています。"},
+  {q:"五島列島の西端に近い福江島の灯台として有名なのはどれですか？",o:["大瀬崎灯台","野崎島灯台","宇久島灯台","頭ヶ島灯台"],a:0,e:"大瀬崎灯台は福江島南西端に位置し、東シナ海を見渡す絶景で知られます。断崖絶壁の上に立つ白い灯台で「日本の夕陽百選」にも選ばれた景勝地です。"},
+],
+
+/* ── 特産品（35問） ── */
+food: [
+  {q:"五島うどんの特徴として正しいものはどれですか？",o:["椿油を塗り手延べした細めのうどん","太くてもちもちした讃岐系","冷たいざるうどんのみ","そばに近い灰色の麺"],a:0,e:"五島うどんは椿油を塗りながら手延べした細麺で、喉越しがよく独特のコシがあります。あご（トビウオ）出汁との相性が抜群で五島を代表するグルメです。"},
+  {q:"五島うどんを「地獄炊き」で食べる際の正しい説明はどれですか？",o:["グツグツ煮立った鍋から直接すくって食べる","氷水で締めてから食べる","天ぷらをのせて食べる","麺を炒めて食べる"],a:0,e:"「地獄炊き」は煮立った鍋から直接麺をすくい、卵や薬味を加えて食べるシンプルな食べ方です。麺のコシと出汁の旨味を最もシンプルに楽しめます。"},
+  {q:"五島うどんのだしに使われる「あご」とは何の魚ですか？",o:["トビウオ","カツオ","マグロ","鯛"],a:0,e:"「あご」はトビウオの方言名。あごだしは上品で甘みのある旨味が特徴で、五島うどんだけでなく長崎県全般の料理に広く使われます。"},
+  {q:"五島の椿油の主な用途として「間違っているもの」はどれですか？",o:["電気の燃料","食用油","美容・護肤","うどんの手延べ"],a:0,e:"椿油は食用・美容・うどん手延べ・灯明（燃料）など多用途に使われてきましたが、電力供給には使われていません。現代でも高級食用油・美容オイルとして人気です。"},
+  {q:"五島列島の椿の種類として最も多く自生するのはどれですか？",o:["ヤブツバキ（薮椿）","ユキツバキ","サザンカ","乙女椿"],a:0,e:"ヤブツバキは五島に最も多く自生する椿で、鮮やかな赤い花が島中を彩ります。椿油の原料としても最も多く使われる品種です。"},
+  {q:"五島で水揚げされる「旬のマグロ」として有名な漁法はどれですか？",o:["一本釣り","定置網","養殖","トロール漁"],a:0,e:"五島産マグロは延縄（はえなわ）・一本釣りで獲られるものが高品質として知られます。特に天然クロマグロの産地として有名で、刺身の品質が高い評価を受けています。"},
+  {q:"五島名産の「五島牛」はどのような牛ですか？",o:["島で放牧・育成された和牛","乳牛との交雑種","輸入牛を五島で肥育したもの","古代から五島固有の品種"],a:0,e:"五島牛は五島列島で育てられた和牛（主に黒毛和種）で、島の空気と自然の中でストレスなく育つことで柔らかな肉質と旨味が特徴とされています。"},
+  {q:"五島で古くから食べられてきた「かんころもち」の主な材料はどれですか？",o:["干したさつまいもともち米","小麦粉と砂糖","里芋と米粉","かぼちゃと白玉粉"],a:0,e:"かんころもちは干し芋（かんころ）ともち米を蒸してついた五島の郷土菓子。甘みがあり素朴な味わいで、冬に作られる保存食として古くから親しまれています。"},
+  {q:"五島で生産される「あおさ」はどのような食材ですか？",o:["緑色の海藻","淡水魚","山菜の一種","きのこの一種"],a:0,e:"あおさは浅瀬の岩場に繁茂する緑色の海藻です。五島産あおさは香り豊かで柔らかく、味噌汁・天ぷら・ラーメンのトッピングなど様々な料理に使われます。"},
+  {q:"五島の「鯨（くじら）料理」が食文化の一部となっている背景はどれですか？",o:["江戸時代から捕鯨が盛んだった","外国文化の影響","仏教の伝来と関係","戦後に外国から持ち込まれた"],a:0,e:"五島周辺では江戸時代から鯨漁が行われ、くじらの刺身・くじら汁などが郷土料理として根付いています。今も鯨肉を扱う食堂や市場があります。"},
+  {q:"五島特産の「五島手延うどん」の製造工程で椿油を塗る目的は何ですか？",o:["麺同士がくっつかず滑らかに延びるため","風味づけのため","殺菌のため","色をつけるため"],a:0,e:"椿油を塗ることで麺がしなやかになり、細く長く均一に延ばすことができます。椿油特有の成分が酸化を抑え、麺の品質保持にも役立っています。"},
+  {q:"五島ではどのような真珠の養殖が行われていますか？",o:["アコヤ真珠","黒蝶真珠","白蝶真珠","淡水真珠"],a:0,e:"五島列島ではアコヤガイを使ったアコヤ真珠の養殖が盛んです。透明度の高い海水が高品質な真珠を育て、長崎県の真珠産業を支えています。"},
+  {q:"五島の特産「五島焼酎」で使われる主原料はどれですか？",o:["さつまいも（芋）","米","麦","ソバ"],a:0,e:"五島では芋焼酎（さつまいもを原料とする）が多く作られています。五島の澄んだ水と麹（こうじ）によって醸される焼酎は、島の食卓に欠かせない存在です。"},
+  {q:"五島うどんは「日本三大うどん」のひとつに数えられることがありますが、他の二つはどれですか？",o:["讃岐うどん・稲庭うどん","博多うどん・水沢うどん","きしめん・伊勢うどん","宮崎うどん・沖縄そば"],a:0,e:"諸説ありますが「日本三大うどん」として讃岐（香川）・稲庭（秋田）・五島（長崎）がよく挙げられます。細麺・喉越し・あごだしが五島うどんの強みです。"},
+  {q:"五島で生産が盛んな「びわ」の主な産地として正しいのはどれですか？",o:["福江島・奈留島","北海道","沖縄","長野"],a:0,e:"長崎県は全国有数のびわ産地で、五島（特に福江島・奈留島付近）でも栽培が盛んです。温暖な海洋性気候がびわの栽培に適しています。"},
+  {q:"五島の「椿まつり」が開催される時期はいつですか？",o:["1〜3月頃（椿の開花期）","7〜8月","10〜11月","12月のみ"],a:0,e:"ヤブツバキの開花時期（1月〜3月頃）に合わせて椿まつりが開かれます。鬼岳山麓など島内各所が椿の花で彩られ、多くの観光客が訪れます。"},
+  {q:"五島の「あごだし文化」で「あご煮干し」の正式な魚の名前は何ですか？",o:["トビウオ","アジ","サバ","カタクチイワシ"],a:0,e:"あごはトビウオの長崎・五島地方での呼び名です。飛んで（あご＝顎を打ちつけるから）という語源説もあります。焼き・煮干しにしてだしに使います。"},
+  {q:"五島産「養殖まぐろ」のブランド名はどれですか？",o:["五島産本まぐろ（主にクロマグロ）","五島黒ダイヤ","長崎海峡まぐろ","壱岐まぐろ"],a:0,e:"五島では天然・養殖ともにクロマグロ（本まぐろ）が有名です。近年養殖技術が向上し「五島産本まぐろ」として高い評価を受けています。"},
+  {q:"五島の名産「さつまいも焼き菓子」として知られる郷土菓子はどれですか？",o:["かんころもち","五島カステラ","丸ぼうろ","よりより"],a:0,e:"かんころもちが五島の代表的な郷土菓子で、干し芋ともち米を蒸してついた素朴な味わいが特徴です。土産物店や道の駅でも人気の商品です。"},
+  {q:"五島特産の「椿油石鹸」の主な特徴はどれですか？",o:["保湿効果が高く肌に優しい","強い洗浄力で有名","香りが強いアロマ石鹸","工業用洗浄に使われる"],a:0,e:"椿油石鹸はオレイン酸を豊富に含む椿油由来の成分が肌の水分を保持し、保湿・洗浄の両方に優れた自然派石鹸として人気があります。"},
+  {q:"五島列島の「いのしし肉料理」が食べられるようになった背景はどれですか？",o:["野生のイノシシが増加したため","古来からの習慣","中国から輸入されたため","江戸幕府が奨励したため"],a:0,e:"五島列島ではイノシシの個体数が増加し農作物被害が問題となったことで、ジビエ料理（猪肉のシチュー・鍋など）が食文化に取り入れられています。"},
+  {q:"五島で生産される「鰹節（かつお節）」の特徴はどれですか？",o:["荒節が多く素朴な風味","長期熟成の本枯れ節が主流","煙を使わない白節","生節のみを生産"],a:0,e:"五島ではカツオの漁獲が多く、荒節・本節などの鰹節が生産されています。地元のだし文化（あご・かつお）と組み合わせた料理が豊かです。"},
+  {q:"五島で伝統的に作られる「ようかん」の特徴はどれですか？",o:["さつまいもを使った琥珀色のようかん","抹茶ようかん","黒糖ようかん","栗ようかん"],a:0,e:"五島では大正時代から続く「さつまいもようかん」が特産品の一つです。地元産さつまいもの甘みと滑らかな食感が特徴で、土産として人気があります。"},
+  {q:"五島うどんの「唐灰汁うどん（とうあくうどん）」とは何ですか？",o:["椿などを燃やした灰の灰汁を練り込んだうどん","唐辛子を練り込んだ辛いうどん","中国風のうどん","唐揚げをのせたうどん"],a:0,e:"唐灰汁うどんは椿などを燃やした灰から取った灰汁（アルカリ液）を練り込んだ独特のうどんで、麺がやや黄みがかり独特の風味があります。"},
+  {q:"五島で生産される「くさや」はどのような食品ですか？",o:["発酵した独特の臭いの干物","新鮮な刺身の盛合わせ","海藻の塩漬け","魚の揚げ物"],a:0,e:"くさやは魚を「くさや液（発酵液）」に漬け込んで干した強烈な臭いの干物で、主に伊豆諸島が有名ですが五島でも独自のくさや文化があります。"},
+  {q:"五島で盛んな「真鯛の養殖」。五島の鯛の特徴はどれですか？",o:["透明度の高い海水で育ち身が締まっている","川で養殖されている","輸入飼料のみで育てられている","淡水魚と同じ味がする"],a:0,e:"五島の澄んだ海で養殖された真鯛は、きれいな水質と適度な流れの中で育つため身が締まり、臭みが少なく上品な味わいと言われています。"},
+  {q:"五島名産の「玄海漬（げんかいづけ）」はどのようなものですか？",o:["西瓜などの野菜をいりこで漬けた粕漬け","魚のみりん漬け","椿の葉の漬物","昆布の塩漬け"],a:0,e:"玄海漬は西瓜や茄子などを酒粕・みりん粕に漬けた長崎・五島の名産品。甘みとコクのある上品な味わいで、贈答品としても人気があります。"},
+  {q:"五島の「椿まつり」で有名な観光スポットとして、椿の名所になっているのはどこですか？",o:["鬼岳","大瀬崎","堂崎天主堂","鬼丸"],a:0,e:"鬼岳の中腹には「五島市椿森公園」があり、約2万本の椿が植えられています。1〜3月の開花シーズンには「鬼岳天然椿まつり」が開催されます。"},
+  {q:"五島うどんに使われる「あご（トビウオ）」を乾燥させたものを何と呼びますか？",o:["焼あご","いりこ","めざし","へしこ"],a:0,e:"焼あごはトビウオを炙って乾燥させたもので、独特の香ばしさと甘みが上品な出汁になります。五島・長崎では最もポピュラーな出汁の素材です。"},
+  {q:"五島の酒文化として「島の芋焼酎」と並んで有名なのはどれですか？",o:["地酒（日本酒）の「五島灘」","五島ワイン","五島ビール","五島ウイスキー"],a:0,e:"「五島灘（ごとうなだ）」は五島列島で造られる地酒（日本酒）のブランドで、地元の米と水を使った旨口の酒として島の食文化を支えています。"},
+  {q:"五島で採れる「さざえ」はどのような料理に使われますか？",o:["壺焼き・刺身・炊き込みご飯","スープのみ","乾物にして出汁","天ぷらのみ"],a:0,e:"五島産さざえは壺焼き・刺身・炊き込みご飯など幅広い料理に使われます。磯の香りと独特の歯ごたえが特徴で、民宿や食堂でも定番メニューです。"},
+  {q:"五島の「干しあわび」はかつてどのような用途で使われましたか？",o:["献上品・進物品として重宝された","輸出専用","薬として販売","農業の肥料"],a:0,e:"五島産の干しあわびは江戸時代から幕府や藩への献上品・進物品として珍重されました。中国との交易品としても重要な価値を持っていました。"},
+  {q:"五島で作られる「鯛せんべい」はどのような菓子ですか？",o:["鯛の形をした甘い焼き菓子","鯛の身を混ぜた塩味のせんべい","魚粉入りのビスケット","鯛を乾燥させた菓子"],a:0,e:"鯛せんべいは鯛の形の型を使って焼いた甘い焼き菓子で、五島土産の定番商品。白あんや椿油を使ったものなど各菓子店が独自に製造しています。"},
+  {q:"五島特産「椿油」のオレイン酸含有率はオリーブオイルと比べてどうですか？",o:["同等かそれ以上","大幅に少ない","ほとんど含まない","オリーブオイルの2倍"],a:0,e:"椿油のオレイン酸含有率は80〜85%で、オリーブオイル（70〜80%）と同等かそれ以上です。高い酸化安定性と肌なじみの良さが美容オイルとして人気の理由です。"},
+],
+
+/* ── 観光スポット（35問） ── */
+spot: [
+  {q:"五島列島最西端に建つ灯台で、断崖絶壁の夕景が有名なのはどれですか？",o:["大瀬崎灯台","野崎島灯台","頭ヶ島灯台","宇久島灯台"],a:0,e:"大瀬崎灯台は福江島南西端の断崖上に立つ白い灯台。東シナ海に沈む夕日は「日本の夕陽百選」に選ばれ、NHKドラマのロケ地にもなりました。"},
+  {q:"五島でシュノーケリングや海水浴として人気の透明度の高いビーチはどれですか？",o:["高浜海水浴場","砂浜ビーチ長崎","対馬海峡プール","嵯峨島白砂浜"],a:0,e:"高浜海水浴場は「日本の快水浴場100選」の特選にも選ばれた透明度抜群のビーチ。白い砂浜とエメラルドグリーンの海が南国を思わせます。"},
+  {q:"鬼岳（おにだけ）の山頂一帯に広がる草原の植物は主に何ですか？",o:["芝（ノシバ）の草原","スギの林","椿の茂み","シダの群落"],a:0,e:"鬼岳山頂はノシバに覆われた緑の草原が広がり、なだらかな稜線からは360度の海と空のパノラマが楽しめます。春は野焼きの後の新緑が絶景です。"},
+  {q:"五島の旧五輪教会堂（旧五輪天主堂）はどの島にありますか？",o:["久賀島","中通島","福江島","頭ヶ島"],a:0,e:"旧五輪教会堂は久賀島南部にある1881年建立の木造教会（移築）です。世界遺産「長崎と天草地方の潜伏キリシタン関連遺産」の構成資産です。"},
+  {q:"上五島（中通島）の観光スポット「矢堅目（やがため）の崎」の見どころはどれですか？",o:["柱状節理の岩壁と白い灯台","洞窟と砂浜","温泉と旅館街","大型ショッピング施設"],a:0,e:"矢堅目の崎は中通島東岸の断崖と柱状節理の岩壁が美しいスポットで、白い灯台と青い海のコントラストが絶景です。ドライブコースの人気スポットです。"},
+  {q:"五島福江島の「石田城跡（福江城跡）」の特徴はどれですか？",o:["海に面した日本最後の城","山城として有名","天守閣が現存","江戸時代初期に建てられた"],a:0,e:"石田城（福江城）は1863年完成の海城で、日本最後の城ともいわれます。現在は五島高校が建ち、石垣と濠が残ります。跡地には五島観光歴史資料館もあります。"},
+  {q:"五島列島で「夕日が美しい」スポットとして特に有名な海岸はどれですか？",o:["白良浜（しらがはま）と大瀬崎","奈留島の江上","若松瀬戸","頭ヶ島ビーチ"],a:0,e:"大瀬崎断崖と白良浜などの西向きの海岸は、東シナ海に沈む夕日の名所として知られ、多くの写真家・観光客が訪れます。"},
+  {q:"五島でダイビングやシュノーケリングに最適とされる理由はどれですか？",o:["透明度が高く対馬暖流が豊かな海洋生物を運ぶ","水温が年中25度以上","淡水と混じる特殊な海","日本最深の海底がある"],a:0,e:"対馬暖流の影響で海水の透明度が非常に高く、熱帯・温帯の両方の魚や珊瑚・海藻が生育する豊かな海です。クロマグロやナポレオンフィッシュも見られます。"},
+  {q:"「椿まつり」のメイン会場として知られ、約2万本の椿が植えられた場所はどこですか？",o:["鬼岳・椿森公園","大瀬崎展望台","堂崎天主堂","福江城跡"],a:0,e:"鬼岳の麓にある「椿森公園」は五島最大の椿の名所で、1〜3月に赤やピンクの花が山一面を覆います。五島市椿まつりのメイン会場でもあります。"},
+  {q:"五島の「ナイトカヤック」体験が特に人気なのはなぜですか？",o:["夜光虫や星空との幻想的なコラボレーション","夜行性の鯨が見られるから","夜のみ波がなくなるから","灯台の光の中を漕ぐから"],a:0,e:"五島の夜の海では夜光虫（夜に光るプランクトン）が海面を青白く輝かせることがあり、満天の星空と合わせた幻想的な体験として人気のアクティビティです。"},
+  {q:"五島の「玉之浦椿（たまのうらつばき）」は何が特別ですか？",o:["世界的に希少な固有品種","一年中咲く珍しい椿","五色の花が咲く椿","最も大きな椿の木"],a:0,e:"玉之浦椿は福江島南部・玉之浦地区で発見された固有品種で、白い縁取りと深紅の美しい花弁が特徴。世界の椿育種家に珍重される希少品種です。"},
+  {q:"五島の「鬼岳火山群」はどのような火山タイプですか？",o:["溶岩ドームやスコリア丘の集合体","成層火山","カルデラ火山","海底火山"],a:0,e:"鬼岳周辺は溶岩ドーム・スコリア丘・火砕流台地が複合した火山群です。約3〜4万年前の噴火でできた地形が現在の草原景観を作り出しています。"},
+  {q:"上五島・中通島の観光名所「青砂ヶ浦天主堂（あおさがうらてんしゅどう）」の外観の特徴は何ですか？",o:["赤レンガのロマネスク様式","白い石造り","木造の和風建築","コンクリート近代建築"],a:0,e:"青砂ヶ浦天主堂は1910年完成の赤レンガのロマネスク様式教会で、国の重要文化財です。緑の丘に映える赤レンガが印象的で、五島を代表する教会のひとつです。"},
+  {q:"五島でサイクリングが楽しめるコースとして特に整備されているのはどこですか？",o:["福江島（ゴトー・バイシクル）","中通島北端","奈留島海岸線","頭ヶ島のみ"],a:0,e:"福江島ではレンタサイクル・電動アシスト自転車のサービス（ゴトーバイシクルなど）が充実しており、教会巡りや海岸線ドライブのサイクリングルートが整備されています。"},
+  {q:"「水ノ浦教会」で知られるのはどんな外観ですか？",o:["白い木造建築で清楚な外観","真っ赤なレンガ造り","石造りの重厚な外観","コンクリート近代建築"],a:0,e:"水ノ浦教会は白い木造の小さな教会で、緑の山と青い海を背景にした清楚な佇まいが美しく、「五島で最も美しい教会」のひとつとして写真家に人気があります。"},
+  {q:"五島のアクティビティ「シーカヤック」で人気のエリアはどこですか？",o:["若松瀬戸・奈留島周辺","福江港内","頭ヶ島のみ","大瀬崎の断崖下"],a:0,e:"入り組んだ若松瀬戸のリアス地形や奈留島周辺の静かな海はシーカヤックの絶好スポットです。無人島への上陸体験を含むツアーも人気があります。"},
+  {q:"五島の「遣唐使ふるさと館」はどこにありますか？",o:["福江島（三井楽）","中通島","奈留島","頭ヶ島"],a:0,e:"「遣唐使ふるさと館」は福江島の三井楽地区にあります。遣唐使の最後の寄港地「三井楽（みいらく）」の歴史を紹介し、復元遣唐使船の模型なども展示されています。"},
+  {q:"五島の「辞本涯（じほんがい）」という場所は何を記念していますか？",o:["遣唐使の最後の出発地点","キリシタンの殉教地","江戸時代の藩境","鎖国解除の記念地"],a:0,e:"「辞本涯（本土の果てを辞す）」は三井楽の丘にある石碑で、空海（弘法大師）が遣唐使として唐へ旅立つ前にこの地に立ったとの伝説から命名されています。"},
+  {q:"五島列島でホエールウォッチングが行われるのはおもにいつ頃ですか？",o:["春（3〜5月）","夏（7〜9月）","秋（10〜11月）","冬（12〜2月）"],a:0,e:"五島沖では春から初夏（3〜5月頃）にザトウクジラや小型鯨類の目撃例が多く、この時期にホエールウォッチングツアーが催行されます。"},
+  {q:"「江上天主堂（奈留島）」の建築上の特徴はどれですか？",o:["白い木造でファサードに双塔を持つ","赤レンガのロマネスク様式","石造りの素朴な造り","コンクリートモダン建築"],a:0,e:"江上天主堂（1918年）は白い外壁に双塔を持つ木造の優美な教会。世界遺産の構成資産で、緑の山裾に佇む姿は「天使の教会」とも呼ばれます。"},
+  {q:"五島福江島の「魚津ヶ崎公園」はどのような公園ですか？",o:["桜の名所・水仙の群生地","熱帯植物園","海水プール施設","スポーツ複合施設"],a:0,e:"魚津ヶ崎公園は桜の名所として有名なほか、水仙（1月〜2月）・桜（3月下旬〜4月）・菜の花が楽しめる花の公園です。福江港から車で約15分です。"},
+  {q:"頭ヶ島（かしらがしま）へのアクセス方法はどれが正しいですか？",o:["中通島から橋で渡れる","フェリーのみ","飛行機のみ","泳いで渡れる距離"],a:0,e:"頭ヶ島は中通島（上五島）と橋（頭ヶ島大橋）で繋がっており、車や自転車で渡ることができます。島内は環境保護のため観光シーズンはマイカー規制があります。"},
+  {q:"五島の「井持浦教会（いもちうらきょうかい）」に設置されているユニークなものはどれですか？",o:["日本最初のルルドの泉","船形の礼拝堂","海底への礼拝堂","巨大な十字架展望台"],a:0,e:"井持浦教会（1897年）の境内には日本最初のルルド（聖母マリアの洞窟聖地）が設置されており、毎年全国から多くの巡礼者が訪れます。"},
+  {q:"五島のトレッキングスポット「七ツ岳（ななつだけ）」は何で知られますか？",o:["険しい岩峰と眺望","温泉","水源池","ダイビングスポット"],a:0,e:"七ツ岳は福江島北部にある険しい岩峰が連なる山で、登山ルートからは五島列島の島々を見渡せる絶景が楽しめます。中級者向けの人気トレッキングスポットです。"},
+  {q:"五島の「若松瀬戸」を遊覧するツアーで乗る乗り物はどれですか？",o:["小型遊覧船・クルーズ船","水上バイク専用","グラスボート（海底観察）のみ","SUP（スタンドアップパドル）"],a:0,e:"若松瀬戸ではリアスの入り江と小島を巡る小型遊覧船・クルーズが人気で、変化に富んだ海岸美を水上から楽しめます。釣りツアーも盛んです。"},
+  {q:"五島で楽しめる「教会スタンプラリー」はどんな活動ですか？",o:["島内各教会を巡りスタンプを集める","オンラインのゲーム","教会内で行われるコンサート","修道院での宿泊体験"],a:0,e:"五島の教会スタンプラリーは島内の教会を訪問してスタンプを集めるスタンプラリーで、観光協会が推奨する教会巡りの楽しみ方のひとつです。"},
+  {q:"五島での「グランピング」や「キャンプ」が楽しめる自然豊かな場所はどれですか？",o:["貝津キャンプ場・鬼岳周辺","福江港ターミナル内","頭ヶ島天主堂境内","奈留島の山頂"],a:0,e:"貝津キャンプ場や鬼岳周辺エリアは海と草原を眺めながらアウトドアが楽しめるスポット。近年はグランピング施設も整備され、若いカップルや家族に人気です。"},
+  {q:"五島の「夕やけロード」として有名なドライブルートはどの方向に向かいますか？",o:["福江島西岸（大瀬崎方向）","福江島東岸","中通島北部","奈留島内"],a:0,e:"福江島の西岸（大瀬崎・玉之浦方面）は夕日の美しいドライブロードが続き「夕やけロード」として知られています。夕暮れ時はオレンジ色に染まる海が壮観です。"},
+  {q:"五島列島でサーフィンができるビーチとして知られるのはどこですか？",o:["荒川海水浴場・岐宿海岸周辺","高浜海水浴場のみ","頭ヶ島の砂浜","奈留島北端"],a:0,e:"福江島の荒川海水浴場や岐宿周辺の海岸では東シナ海のうねりを受けたサーフィンが楽しめます。五島は九州のサーファーにとっても穴場スポットです。"},
+  {q:"五島福江島の「三井楽（みいらく）」地区が観光地として知られる理由はどれですか？",o:["遣唐使の出発地・水仙の群生","温泉リゾート","最大の繁華街","世界遺産の工場跡"],a:0,e:"三井楽は遣唐使の最後の出発地として史跡が多く、また水仙（スイセン）の群生地「百合岳」など自然も豊か。「辞本涯」の石碑も三井楽に建っています。"},
+  {q:"五島の「福江武家屋敷通り（熊本城下通り）」の主な見どころはどれですか？",o:["石垣・白壁・黒塀の武家屋敷跡","古いアーケード商店街","廃墟となった工場群","近代建築のカフェ街"],a:0,e:"福江城下の武家屋敷通りでは石垣・白壁・黒塀が連なる江戸時代の城下町景観が保存されており、タイムスリップしたような雰囲気が楽しめます。"},
+  {q:"五島で近年注目されている「ウミガメ」の産卵地として知られるのはどこですか？",o:["高浜海岸・白良浜","福江港","鬼岳山頂","頭ヶ島川"],a:0,e:"高浜海岸や白良浜などの白砂のビーチはアカウミガメの産卵地として知られます。夏に産卵・ふ化が見られる場合があり、環境保護活動も行われています。"},
+  {q:"五島の「鬼岳天文台」から見られる天体観測の魅力はどれですか？",o:["光害が少なく満天の星空が見える","世界最大の天体望遠鏡がある","オーロラが見られる","昼間の太陽観測専用"],a:0,e:"五島は人口密度が低く光害が少ないため、鬼岳天文台では天の川や惑星を肉眼でも見やすい美しい夜空が広がります。観望会・天体イベントも開催されています。"},
+  {q:"五島列島が「サイクリングの島」としてPRしているルートの特徴はどれですか？",o:["教会・海岸・景勝地を結ぶルート","都市部を走る平坦なルート","山岳コースのみ","地下トンネルを走るルート"],a:0,e:"五島市は教会・大瀬崎・鬼岳など主要観光スポットを電動アシスト自転車で結ぶサイクリングツーリズムを推進しており、観光とスポーツを組み合わせた旅が楽しめます。"},
+],
+
+};
+
+/* ═══════════════════════════════════════════════════
+   ゲームロジック
+═══════════════════════════════════════════════════ */
+const GENRE_NAMES = {history:"歴史",geo:"地理",food:"特産品",spot:"観光スポット"};
+const GENRE_ICONS = {history:"⛪",geo:"🗺️",food:"🍜",spot:"🌊"};
+const TOTAL_Q = 10;
+const TIME_START = 120;
+const TIME_CORRECT = 5;
+const TIME_WRONG = 5;
+const POINT_CORRECT = 10;
+
+let currentGenre = null;
+let playerName = "";
+let questions = [];
+let qIndex = 0;
+let score = 0;
+let timeLeft = 0;
+let timerInterval = null;
+let wrongList = [];
+let answered = false;
+
+function selectGenre(g) {
+  currentGenre = g;
+  const n = GENRE_NAMES[g];
+  document.getElementById('name-badge').textContent = `${GENRE_ICONS[g]} ${n}クイズ`;
+  document.getElementById('name-genre-title').textContent = `${n}クイズ`;
+  showScreen('name-screen');
+}
+
+function startQuiz() {
+  playerName = document.getElementById('player-name').value.trim() || "プレイヤー";
+  questions = shuffle([...DB[currentGenre]]).slice(0, TOTAL_Q);
+  qIndex = 0;
+  score = 0;
+  timeLeft = TIME_START;
+  wrongList = [];
+  showScreen('quiz-screen');
+  startTimer();
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[qIndex];
+  const labels = ['A','B','C','D'];
+
+  document.getElementById('q-num').textContent = `Q${qIndex+1} / ${TOTAL_Q}`;
+  document.getElementById('q-score').textContent = `${score} pt`;
+  document.getElementById('progress-fill').style.width = `${(qIndex/TOTAL_Q)*100}%`;
+  document.getElementById('cat-tag').textContent = GENRE_NAMES[currentGenre];
+  document.getElementById('question-text').textContent = q.q;
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const shuffled = shuffleWithIndex(q.o);
+  grid._answerMap = shuffled.map(x=>x.orig);
+
+  shuffled.forEach((item, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span>${item.text}</span>`;
+    btn.onclick = () => selectAnswer(i, grid._answerMap, q);
+    grid.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+  const nb = document.getElementById('next-btn');
+  nb.className = 'next-btn';
+  nb.textContent = qIndex < TOTAL_Q-1 ? '次の問題へ →' : '結果を見る';
+}
+
+function shuffleWithIndex(arr) {
+  return arr.map((text,i)=>({text,orig:i})).sort(()=>Math.random()-.5);
+}
+
+function selectAnswer(selectedIdx, answerMap, q) {
+  if (answered) return;
+  answered = true;
+
+  const isCorrect = answerMap[selectedIdx] === q.a;
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((btn,i) => {
+    btn.disabled = true;
+    if (answerMap[i] === q.a) btn.classList.add('correct');
+    else if (i === selectedIdx && !isCorrect) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('feedback');
+  if (isCorrect) {
+    score += POINT_CORRECT;
+    timeLeft = Math.min(timeLeft + TIME_CORRECT, 999);
+    fb.className = 'feedback correct-fb show';
+    fb.innerHTML = `<span class="fb-head">✅ 正解！ <span class="time-badge time-plus">＋${TIME_CORRECT}秒</span></span>${q.e}`;
+  } else {
+    timeLeft = Math.max(timeLeft - TIME_WRONG, 0);
+    const correctText = q.o[q.a];
+    fb.className = 'feedback wrong-fb show';
+    fb.innerHTML = `<span class="fb-head">❌ 正解は「${correctText}」<span class="time-badge time-minus">−${TIME_WRONG}秒</span></span>${q.e}`;
+    wrongList.push({q:q.q, myAns: q.o[answerMap[selectedIdx]], correct: q.o[q.a], exp: q.e});
+  }
+  document.getElementById('q-score').textContent = `${score} pt`;
+
+  const nb = document.getElementById('next-btn');
+  nb.classList.add('show');
+}
+
+function nextQuestion() {
+  qIndex++;
+  if (qIndex >= TOTAL_Q) {
+    endQuiz(false);
+  } else {
+    renderQuestion();
+  }
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      endQuiz(true);
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('timer-num');
+  el.textContent = timeLeft;
+  el.className = 'timer-num' + (timeLeft <= 20 ? ' warn' : '');
+}
+
+function endQuiz(timeUp) {
+  clearInterval(timerInterval);
+  const bonus = timeUp ? 0 : timeLeft;
+  const total = score + bonus;
+  showResult(total, bonus, timeUp);
+}
+
+function showResult(total, bonus, timeUp) {
+  showScreen('result-screen');
+  const correctCount = score / POINT_CORRECT;
+
+  let emoji, title, msg;
+  const pct = correctCount / TOTAL_Q;
+  if (timeUp) {
+    emoji='⏰'; title='時間切れ！'; msg='惜しかった！次回はもっと速く答えよう。五島の知識をさらに深めて再挑戦！';
+  } else if (pct===1) {
+    emoji='🏆'; title='五島博士！'; msg='完璧です！五島のすべてを知り尽くしていますね。旅がさらに楽しくなりそう！';
+  } else if (pct>=.7) {
+    emoji='⛵'; title='島通！'; msg='素晴らしい！五島の魅力をしっかり理解しています。旅行当日が楽しみですね。';
+  } else if (pct>=.4) {
+    emoji='🌊'; title='もう少し！'; msg='五島にはまだ知らない魅力がたくさん。間違いを振り返ってもう一度挑戦！';
+  } else {
+    emoji='🐟'; title='旅の準備をしよう！'; msg='五島の歴史・自然・グルメを旅行前にたっぷり予習しましょう！';
+  }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-player').textContent = `${playerName} さんの結果`;
+  document.getElementById('r-total').textContent = total;
+  document.getElementById('r-correct').textContent = `${correctCount} / ${TOTAL_Q}`;
+  document.getElementById('r-bonus').textContent = `+${bonus}`;
+  document.getElementById('result-msg').textContent = msg;
+
+  // ランキング登録UI表示
+  showRankingSaveUI(currentGenre, total, correctCount, bonus);
+
+  const ws = document.getElementById('wrong-section');
+  if (wrongList.length === 0) {
+    ws.innerHTML = '<p style="color:#7fe8a8;font-size:15px;text-align:center;">間違えた問題はありません 🎉</p>';
+  } else {
+    ws.innerHTML = `<h3>❌ 間違えた問題（${wrongList.length}問）</h3>` +
+      wrongList.map((w,i)=>`
+        <div class="wrong-item">
+          <div class="wi-q">Q${i+1}. ${w.q}</div>
+          <div class="wi-wrong">あなたの答え：${w.myAns}</div>
+          <div class="wi-correct">✅ 正解：${w.correct}</div>
+          <div class="wi-exp">${w.exp}</div>
+        </div>`).join('');
+  }
+}
+
+function retryQuiz() {
+  startQuiz();
+}
+function goTop() {
+  clearInterval(timerInterval);
+  showScreen('top-screen');
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function shuffle(arr) { return arr.sort(()=>Math.random()-.5); }
+
+/* ═══════════════════════════════════════════════════
+   ローカルランキング（localStorage）
+   ジャンル別 Top20 をこの端末に保存
+   複数プレイヤーが同じ端末でプレーしても
+   プレイヤー名ごとに記録が残る
+═══════════════════════════════════════════════════ */
+const RANK_MAX = 20;
+const LS_PREFIX = 'goto_quiz_rank_';
+
+function dateStr() {
+  const d = new Date();
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function loadList(genre) {
+  try {
+    return JSON.parse(localStorage.getItem(LS_PREFIX + genre) || '[]');
+  } catch(e) { return []; }
+}
+
+function saveList(genre, list) {
+  localStorage.setItem(LS_PREFIX + genre, JSON.stringify(list));
+}
+
+// スコアを保存してその順位を返す（1始まり）
+function saveRanking(genre, name, total, correct, bonus) {
+  const list = loadList(genre);
+  const entry = { name, total, correct, bonus, date: dateStr() };
+  list.push(entry);
+  list.sort((a, b) => b.total - a.total || b.correct - a.correct);
+  const trimmed = list.slice(0, RANK_MAX);
+  saveList(genre, trimmed);
+  // 登録後の自分の順位
+  const rank = trimmed.findIndex(e =>
+    e.name === name && e.total === total &&
+    e.correct === correct && e.date === entry.date
+  ) + 1;
+  return rank;
+}
+
+// ── ランキング画面の表示 ──
+let rankingCurrentGenre = 'history';
+
+function showRanking(genre) {
+  genre = genre || rankingCurrentGenre;
+  rankingCurrentGenre = genre;
+  showScreen('ranking-screen');
+  document.querySelectorAll('.genre-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.genre === genre)
+  );
+  renderRankingList(genre);
+}
+
+function switchRankingTab(genre) {
+  rankingCurrentGenre = genre;
+  document.querySelectorAll('.genre-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.genre === genre)
+  );
+  renderRankingList(genre);
+}
+
+function renderRankingList(genre) {
+  const el = document.getElementById('ranking-list');
+  const list = loadList(genre);
+  if (list.length === 0) {
+    el.innerHTML = '<div class="ranking-empty">まだ記録がありません。<br>最初のプレイヤーになろう！🏝️</div>';
+    return;
+  }
+  const medals = ['🥇','🥈','🥉'];
+  el.innerHTML = list.map((e, i) => {
+    const rankClass = i===0?'top1':i===1?'top2':i===2?'top3':'';
+    const numClass  = i===0?'g1'  :i===1?'g2'  :i===2?'g3'  :'gn';
+    return `
+    <div class="ranking-row ${rankClass}">
+      <div class="rank-num ${numClass}">${i+1}</div>
+      <div class="rank-medal">${medals[i]||''}</div>
+      <div class="rank-info">
+        <div class="rank-name">${escHtml(e.name)}</div>
+        <div class="rank-detail">正解 ${e.correct}/${TOTAL_Q}問 ／ ボーナス +${e.bonus} ／ ${e.date}</div>
+      </div>
+      <div class="rank-score">${e.total}<span>pt</span></div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/[&<>"']/g, m =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
+  );
+}
+
+// ── 結果画面：登録UI ──
+function showRankingSaveUI(genre, total, correct, bonus) {
+  const area = document.getElementById('ranking-save-area');
+  area.innerHTML = `
+    <div style="background:rgba(212,168,67,.1);border:1.5px solid rgba(212,168,67,.3);
+                border-radius:14px;padding:18px 20px;">
+      <div style="font-family:'Noto Serif JP',serif;font-size:15px;font-weight:700;
+                  color:var(--gold);margin-bottom:12px;">🏆 ランキングに登録する</div>
+      <button id="rank-save-btn"
+        onclick="doSaveRanking('${genre}',${total},${correct},${bonus})"
+        style="width:100%;background:linear-gradient(135deg,var(--gold),#b88a20);
+               color:#fff;border:none;border-radius:10px;padding:14px;
+               font-family:'Noto Sans JP',sans-serif;font-size:15px;
+               font-weight:700;cursor:pointer;letter-spacing:1.5px;">
+        スコアを登録する（${total}pt）
+      </button>
+      <p style="font-size:11px;color:var(--foam);opacity:.5;margin-top:8px;">
+        ※ この端末のブラウザに保存されます
+      </p>
+    </div>`;
+}
+
+function doSaveRanking(genre, total, correct, bonus) {
+  const rank = saveRanking(genre, playerName, total, correct, bonus);
+  const area = document.getElementById('ranking-save-area');
+  area.innerHTML = `
+    <div style="background:rgba(46,196,128,.1);border:1px solid rgba(46,196,128,.3);
+                border-radius:14px;padding:16px;text-align:center;">
+      <div style="font-size:32px;margin-bottom:6px;">🎉</div>
+      <div style="font-family:'Noto Serif JP',serif;font-size:17px;
+                  font-weight:700;color:#7fe8a8;">
+        ランキング ${rank}位 に登録しました！
+      </div>
+      <div style="font-size:13px;color:var(--foam);opacity:.7;margin-top:6px;">
+        ${total}pt ／ ${GENRE_NAMES[genre]}
+      </div>
+    </div>`;
+}
+
+function clearRanking() {
+  if (!confirm(`「${GENRE_NAMES[rankingCurrentGenre]}」の全記録を削除しますか？`)) return;
+  localStorage.removeItem(LS_PREFIX + rankingCurrentGenre);
+  renderRankingList(rankingCurrentGenre);
+}
+</script>
+</body>
+</html>
